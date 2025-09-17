@@ -1,16 +1,4 @@
-> [!CAUTION]  
-> This project will no longer be maintained and will be archived, as it represents a time and research investment that I no longer wish to pursue. With that being said, the project will be archived.
-
-<img width="100%" style="border: 1px solid black" src="https://i.imgur.com/bre34Xl.png">
-
-# FGO Daily Login
-FGO Daily Login is a mod of the repository [FGODailyBonus](https://github.com/hexstr/FGODailyBonus)
-
-It has the following features:
-- No Logs
-- Automatic VerCode Update
-- Change Telegram to Discord Webhook
-- Region JP and NA 
+Just a refork version of the original FGO-Daily-Login: https://github.com/O-Isaac/FGO-Daily-Login
 
 # Extract your auth data
 You need to extract your authentication data to do this.
