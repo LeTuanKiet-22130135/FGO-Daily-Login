@@ -7,7 +7,10 @@ import mytime
 import gacha
 import webhook
 import main
+import secrets
+import base64
 
+from urllib.parse import quote
 from urllib.parse import quote_plus
 from libs.GetSubGachaId import GetGachaSubIdFP
 
@@ -26,6 +29,9 @@ class ParameterBuilder:
             ('lastAccessTime', str(mytime.GetTimeStamp())),
             ('userId', self.uid_),
             ('verCode', fgourl.ver_code_),
+            ('deviceInfo', 'samsung SM-G780G / Android OS 13 / API-33 (TP1A.220624.014/G780GXXSGEYF2)'),
+            ('clientIdentifyKey', ''),
+            ('country', '840')
         ]
 
     def AddParameter(self, key: str, value: str):
@@ -66,8 +72,7 @@ class ParameterBuilder:
             ('userId', self.uid_),
             ('verCode', fgourl.ver_code_),
         ]
-
-
+    
 class Rewards:
     def __init__(self, stone, level, ticket):
         self.stone = stone
@@ -107,22 +112,29 @@ class user:
         res = fgourl.PostReq(self.s_, url, self.builder_.Build())
         self.builder_.Clean()
         return res
-
+    
+    # This is used to genetare random idempotencyKeySignature, as we do not know how this param is made
+    def generate_secure_percent_encoded_token(self, num_bytes=48):
+        random_bytes = secrets.token_bytes(num_bytes)
+        b64 = base64.b64encode(random_bytes).decode('ascii')
+        encoded = quote(b64, safe='')
+        return encoded   
+    
     def topLogin(self):
         DataWebhook = []  # This data will be use in discord webhook!
 
         lastAccessTime = self.builder_.parameter_list_[5][1]
         userState = (-int(lastAccessTime) >>
                      2) ^ self.user_id_ & fgourl.data_server_folder_crc_
-
         self.builder_.AddParameter(
             'assetbundleFolder', fgourl.asset_bundle_folder_)
         self.builder_.AddParameter('isTerminalLogin', '1')
         self.builder_.AddParameter('userState', str(userState))
-
+        self.builder_.AddParameter('idempotencyKeySignature', self.generate_secure_percent_encoded_token(128))
+        
         data = self.Post(
             f'{fgourl.server_addr_}/login/top?_userId={self.user_id_}')
-
+        
         self.name_ = hashlib.md5(
             data['cache']['replaced']['userGame'][0]['name'].encode('utf-8')).hexdigest()
         stone = data['cache']['replaced']['userGame'][0]['stone']
