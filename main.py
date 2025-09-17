@@ -8,15 +8,15 @@ import coloredlogs
 import logging
 
 # Enviroments Variables
-userIds = os.environ['userIds'].split(',')
-authKeys = os.environ['authKeys'].split(',')
-secretKeys = os.environ['secretKeys'].split(',')
-fate_region = os.environ['fateRegion']
-webhook_discord_url = os.environ['webhookDiscord']
-UA = os.environ['UserAgent']
+userIds = ""
+authKeys = ""
+secretKeys = ""
+fate_region = ""
+webhook_discord_url = ""
+UA = ""
 
 if UA != 'nullvalue':
-    fgourl.user_agent_ = UA
+    fgourl.user_agent_ = "Dalvik/2.1.0 (Linux; U; Android 13; SM-G780G Build/TP1A.220624.014)"
 
 userNums = len(userIds)
 authKeyNums = len(authKeys)
@@ -30,9 +30,9 @@ def get_latest_verCode():
     endpoint = ""
 
     if fate_region == "NA":
-        endpoint += "https://raw.githubusercontent.com/O-Isaac/FGO-VerCode-extractor/NA/VerCode.json"
+        endpoint += "https://raw.githubusercontent.com/O-Isaac/FGO-VerCode-extractor/refs/heads/next/na.json"
     else:
-        endpoint += "https://raw.githubusercontent.com/O-Isaac/FGO-VerCode-extractor/JP/VerCode.json"
+        endpoint += "https://raw.githubusercontent.com/O-Isaac/FGO-VerCode-extractor/refs/heads/next/jp.json"
 
     response = requests.get(endpoint).text
     response_data = json.loads(response)
@@ -41,24 +41,23 @@ def get_latest_verCode():
 
 
 def main():
-    if userNums == authKeyNums and userNums == secretKeyNums:
         logger.info('Getting Lastest Assets Info')
         fgourl.set_latest_assets()
 
-        for i in range(userNums):
-            try:
-                instance = user.user(userIds[i], authKeys[i], secretKeys[i])
-                time.sleep(3)
-                logger.info('Loggin into account!')
-                instance.topLogin()
-                time.sleep(2)
-                instance.topHome()
-                time.sleep(2)
-                logger.info('Throw daily friend summon!')
-                instance.drawFP()
-                time.sleep(2)
-            except Exception as ex:
-                logger.error(ex)
+        try:
+            instance = user.user(userIds, authKeys, secretKeys) 
+            time.sleep(3)
+            logger.info('Loggin into account!')
+            instance.topLogin()
+            logger.info('Loggin success')
+            time.sleep(2)
+            instance.topHome()
+            time.sleep(2)
+            logger.info('Throw daily friend summon!')
+            instance.drawFP()
+            time.sleep(2)
+        except Exception as ex:
+            logger.error(ex)
 
 
 if __name__ == "__main__":
